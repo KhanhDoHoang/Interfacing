@@ -1,0 +1,536 @@
+[
+    {
+        "id": "32d30a0e82c4f2dd",
+        "type": "tab",
+        "label": "Hybrid Activity #3 - Tri-Color LED Dashboard",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "e59afc16dacf9dbf",
+        "type": "comment",
+        "z": "32d30a0e82c4f2dd",
+        "name": "Tri-Color LED Dashboard by Hoang Do (do000075@algonquinlive.com)",
+        "info": "",
+        "x": 390,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "eb04e96a92aa7927",
+        "type": "ui_colour_picker",
+        "z": "32d30a0e82c4f2dd",
+        "name": "Colour Wheel",
+        "label": "",
+        "group": "0d70784ce9b7e812",
+        "format": "rgb",
+        "outformat": "object",
+        "showSwatch": true,
+        "showPicker": true,
+        "showValue": true,
+        "showHue": false,
+        "showAlpha": false,
+        "showLightness": true,
+        "square": "false",
+        "dynOutput": "true",
+        "order": 0,
+        "width": "5",
+        "height": "4",
+        "passthru": false,
+        "topic": "topic",
+        "topicType": "msg",
+        "className": "",
+        "x": 210,
+        "y": 280,
+        "wires": [
+            [
+                "d6d99f9eb553a474",
+                "16f649d0bd11285e"
+            ]
+        ]
+    },
+    {
+        "id": "16f649d0bd11285e",
+        "type": "split",
+        "z": "32d30a0e82c4f2dd",
+        "name": "split: r, g, b",
+        "splt": "\\n",
+        "spltType": "str",
+        "arraySplt": 1,
+        "arraySpltType": "len",
+        "stream": false,
+        "addname": "topic",
+        "x": 430,
+        "y": 280,
+        "wires": [
+            [
+                "3cde58194be8c9d1",
+                "cc42a1bd5b26348a"
+            ]
+        ]
+    },
+    {
+        "id": "3cde58194be8c9d1",
+        "type": "switch",
+        "z": "32d30a0e82c4f2dd",
+        "name": "",
+        "property": "topic",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "r",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "g",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "b",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 3,
+        "x": 660,
+        "y": 280,
+        "wires": [
+            [
+                "c406475172c32c06"
+            ],
+            [
+                "9794a6f2fb228ceb"
+            ],
+            [
+                "8ba82206f13399bc"
+            ]
+        ]
+    },
+    {
+        "id": "d6d99f9eb553a474",
+        "type": "debug",
+        "z": "32d30a0e82c4f2dd",
+        "name": "Colour Wheel",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 270,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "cc42a1bd5b26348a",
+        "type": "debug",
+        "z": "32d30a0e82c4f2dd",
+        "name": "split: r, g, b",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 480,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "65e29df42d7db28f",
+        "type": "arduino in",
+        "z": "32d30a0e82c4f2dd",
+        "name": "Trim Pot(A8)",
+        "pin": "8",
+        "state": "ANALOG",
+        "arduino": "418feedc577815d8",
+        "x": 190,
+        "y": 500,
+        "wires": [
+            [
+                "809b00c7f91ebb34"
+            ]
+        ]
+    },
+    {
+        "id": "809b00c7f91ebb34",
+        "type": "range",
+        "z": "32d30a0e82c4f2dd",
+        "minin": "0",
+        "maxin": "1024",
+        "minout": "0",
+        "maxout": "100",
+        "action": "scale",
+        "round": false,
+        "property": "payload",
+        "name": "0-100",
+        "x": 390,
+        "y": 500,
+        "wires": [
+            [
+                "52d755bd3a429d12"
+            ]
+        ]
+    },
+    {
+        "id": "52d755bd3a429d12",
+        "type": "rbe",
+        "z": "32d30a0e82c4f2dd",
+        "name": "block unless values change is greater than 1 compared to last valid output value",
+        "func": "deadband",
+        "gap": "1",
+        "start": "",
+        "inout": "out",
+        "septopics": true,
+        "property": "payload",
+        "topi": "topic",
+        "x": 420,
+        "y": 600,
+        "wires": [
+            [
+                "0219d5bfdf7bf367",
+                "3da492abbf0854fd",
+                "846810228887cb5e",
+                "4a9463c013c0c66f"
+            ]
+        ]
+    },
+    {
+        "id": "c406475172c32c06",
+        "type": "function",
+        "z": "32d30a0e82c4f2dd",
+        "name": "cache Red",
+        "func": "flow.set(\"Red\", msg.payload);\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 910,
+        "y": 140,
+        "wires": [
+            [
+                "20521bd17554ef9c",
+                "54b2dde7f7032605",
+                "4e56992fca908d03"
+            ]
+        ]
+    },
+    {
+        "id": "9794a6f2fb228ceb",
+        "type": "function",
+        "z": "32d30a0e82c4f2dd",
+        "name": "cache Green",
+        "func": "flow.set(\"Green\", msg.payload);\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 910,
+        "y": 280,
+        "wires": [
+            [
+                "0ca856dd51e6895a",
+                "ca7909b4e0320240",
+                "887b1580389f4217"
+            ]
+        ]
+    },
+    {
+        "id": "8ba82206f13399bc",
+        "type": "function",
+        "z": "32d30a0e82c4f2dd",
+        "name": "cache Blue",
+        "func": "flow.set(\"Blue\", msg.payload);\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 910,
+        "y": 400,
+        "wires": [
+            [
+                "a449f51aae09c09e",
+                "8af18bac8b2b15d1",
+                "c4e2dd93c075fb4d"
+            ]
+        ]
+    },
+    {
+        "id": "0219d5bfdf7bf367",
+        "type": "function",
+        "z": "32d30a0e82c4f2dd",
+        "name": "Fade Red",
+        "func": "var redValues = flow.get(\"Red\" || 0);\nmsg.payload = parseInt(Number(redValues) * (msg.payload / 100));\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 900,
+        "y": 540,
+        "wires": [
+            [
+                "20521bd17554ef9c",
+                "4e56992fca908d03"
+            ]
+        ]
+    },
+    {
+        "id": "3da492abbf0854fd",
+        "type": "function",
+        "z": "32d30a0e82c4f2dd",
+        "name": "Fade Green",
+        "func": "var greenValues = flow.get(\"Green\" || 0);\nmsg.payload = parseInt(Number(greenValues) * (msg.payload / 100));\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 910,
+        "y": 600,
+        "wires": [
+            [
+                "0ca856dd51e6895a",
+                "887b1580389f4217"
+            ]
+        ]
+    },
+    {
+        "id": "846810228887cb5e",
+        "type": "function",
+        "z": "32d30a0e82c4f2dd",
+        "name": "Fade Blue",
+        "func": "var blueValues = flow.get(\"Blue\" || 0);\nmsg.payload = parseInt(Number(blueValues) * (msg.payload / 100));\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 910,
+        "y": 660,
+        "wires": [
+            [
+                "a449f51aae09c09e",
+                "c4e2dd93c075fb4d"
+            ]
+        ]
+    },
+    {
+        "id": "4a9463c013c0c66f",
+        "type": "ui_slider",
+        "z": "32d30a0e82c4f2dd",
+        "name": "LED Dimmer",
+        "label": "LED Dimmer",
+        "tooltip": "",
+        "group": "932adde128e52089",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "outs": "end",
+        "topic": "topic",
+        "topicType": "msg",
+        "min": 0,
+        "max": "100",
+        "step": 1,
+        "className": "",
+        "x": 910,
+        "y": 740,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "20521bd17554ef9c",
+        "type": "ui_text",
+        "z": "32d30a0e82c4f2dd",
+        "group": "784944fe7e450a13",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "name": "Red",
+        "label": "Red",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "x": 1270,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "0ca856dd51e6895a",
+        "type": "ui_text",
+        "z": "32d30a0e82c4f2dd",
+        "group": "784944fe7e450a13",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "name": "Green",
+        "label": "Green",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "x": 1270,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "a449f51aae09c09e",
+        "type": "ui_text",
+        "z": "32d30a0e82c4f2dd",
+        "group": "784944fe7e450a13",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "name": "Blue",
+        "label": "Blue",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "x": 1270,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "4e56992fca908d03",
+        "type": "arduino out",
+        "z": "32d30a0e82c4f2dd",
+        "name": "Red (Pin 23)",
+        "pin": "23",
+        "state": "PWM",
+        "arduino": "418feedc577815d8",
+        "x": 1290,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "887b1580389f4217",
+        "type": "arduino out",
+        "z": "32d30a0e82c4f2dd",
+        "name": "Green (Pin 20)",
+        "pin": "20",
+        "state": "PWM",
+        "arduino": "418feedc577815d8",
+        "x": 1300,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "c4e2dd93c075fb4d",
+        "type": "arduino out",
+        "z": "32d30a0e82c4f2dd",
+        "name": "Blue (Pin 21)",
+        "pin": "21",
+        "state": "PWM",
+        "arduino": "418feedc577815d8",
+        "x": 1300,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "54b2dde7f7032605",
+        "type": "debug",
+        "z": "32d30a0e82c4f2dd",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1020,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "ca7909b4e0320240",
+        "type": "debug",
+        "z": "32d30a0e82c4f2dd",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1040,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "8af18bac8b2b15d1",
+        "type": "debug",
+        "z": "32d30a0e82c4f2dd",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1020,
+        "y": 340,
+        "wires": []
+    },
+    {
+        "id": "0d70784ce9b7e812",
+        "type": "ui_group",
+        "name": "Tri-Color (Analog)",
+        "tab": "a9b6ba3b46f6d5a5",
+        "order": 1,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "418feedc577815d8",
+        "type": "arduino-board",
+        "device": "COM5"
+    },
+    {
+        "id": "932adde128e52089",
+        "type": "ui_group",
+        "name": "Brightness",
+        "tab": "a9b6ba3b46f6d5a5",
+        "order": 3,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "784944fe7e450a13",
+        "type": "ui_group",
+        "name": "RGB Values",
+        "tab": "a9b6ba3b46f6d5a5",
+        "order": 2,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "a9b6ba3b46f6d5a5",
+        "type": "ui_tab",
+        "name": "Tri-Color LED Dashboard",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    }
+]

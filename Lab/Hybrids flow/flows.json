@@ -1,0 +1,593 @@
+[
+    {
+        "id": "2d4eaf498dfc8ef2",
+        "type": "tab",
+        "label": "Temperature Flow",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "8c6cb82773835564",
+        "type": "arduino in",
+        "z": "2d4eaf498dfc8ef2",
+        "name": "Thermistor (A1)",
+        "pin": "1",
+        "state": "ANALOG",
+        "arduino": "418feedc577815d8",
+        "x": 100,
+        "y": 300,
+        "wires": [
+            [
+                "8150f4ccc768e26b",
+                "00cd68365be0258d"
+            ]
+        ],
+        "info": "```\nflow.set(\"thermistor\", msg.payload);\n```"
+    },
+    {
+        "id": "8bcfa8aba89935c6",
+        "type": "arduino in",
+        "z": "2d4eaf498dfc8ef2",
+        "name": "PBS (Pin 3)",
+        "pin": "3",
+        "state": "INPUT",
+        "arduino": "418feedc577815d8",
+        "x": 90,
+        "y": 560,
+        "wires": [
+            [
+                "f49732e2d2847947",
+                "b770c68b08104369"
+            ]
+        ]
+    },
+    {
+        "id": "9156fcf0ba2f3c04",
+        "type": "comment",
+        "z": "2d4eaf498dfc8ef2",
+        "name": "Temperature Flow by Hoang Do (do000075@algonquinlive.com)",
+        "info": "",
+        "x": 260,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "d683bb47e0e319b9",
+        "type": "comment",
+        "z": "2d4eaf498dfc8ef2",
+        "name": "Pre-Req: Teensy us running Standard Firmata Plus",
+        "info": "",
+        "x": 210,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "aac8a87c84ca1682",
+        "type": "comment",
+        "z": "2d4eaf498dfc8ef2",
+        "name": "Temperature Circuit: https://www.pjrc.com/teensy/tutorial4.html",
+        "info": "",
+        "x": 240,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "16006ad4e97270ae",
+        "type": "comment",
+        "z": "2d4eaf498dfc8ef2",
+        "name": "Press PBS to toggle temperature scale: Celsisu > Fahrenheit > Kelvin > C..",
+        "info": "",
+        "x": 300,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "f49732e2d2847947",
+        "type": "delay",
+        "z": "2d4eaf498dfc8ef2",
+        "name": "debounce 500ms",
+        "pauseType": "delay",
+        "timeout": "500",
+        "timeoutUnits": "milliseconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 290,
+        "y": 560,
+        "wires": [
+            [
+                "8d452b130e814ef7"
+            ]
+        ]
+    },
+    {
+        "id": "8150f4ccc768e26b",
+        "type": "function",
+        "z": "2d4eaf498dfc8ef2",
+        "name": "Convert Pin(A1) to Celsius",
+        "func": "flow.set(\"thermistor\", msg.payload);\nvar code = flow.get(\"thermistor\") || 0; \nvar celsius = 0;\n\nif (code <= 289) {\n    celsius = 5 + (code - 289) / 9.82;\n}\nif (code > 289 && code <= 342) {\n    celsius = 10 + (code - 342) / 10.60;\n}\nif (code > 342 && code <= 398) {\n    celsius = 15 + (code - 398) / 11.12;\n}\nif (code > 398 && code <= 455) {\n    celsius = 20 + (code - 455) / 11.36;\n}\nif (code > 455 && code <= 512) {\n    celsius = 25 + (code - 512) / 11.32;\n}\nif (code > 512 && code <= 566) {\n    celsius = 30 + (code - 566) / 11.00;\n}\nif (code > 566 && code <= 619) {\n    celsius = 35 + (code - 619) / 10.44;\n}\nif (code > 619 && code <= 667) {\n    celsius = 40 + (code - 667) / 9.73;\n}\nif (code > 667) {\n    celsius = 45 + (code - 712) / 8.90;\n}\n  \n// msg.payload = code;\n  \nflow.set(\"celsius\", celsius);\n  \nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 330,
+        "y": 300,
+        "wires": [
+            [
+                "5568c87be222ab30",
+                "7f7c39859c40b53b"
+            ]
+        ]
+    },
+    {
+        "id": "5568c87be222ab30",
+        "type": "rbe",
+        "z": "2d4eaf498dfc8ef2",
+        "name": "block unless value change is greater than 0.2",
+        "func": "deadband",
+        "gap": "0.2",
+        "start": "",
+        "inout": "out",
+        "septopics": true,
+        "property": "payload",
+        "topi": "topic",
+        "x": 690,
+        "y": 300,
+        "wires": [
+            [
+                "6bf6dff00953fea0"
+            ]
+        ]
+    },
+    {
+        "id": "6bf6dff00953fea0",
+        "type": "function",
+        "z": "2d4eaf498dfc8ef2",
+        "name": "cache temperature",
+        "func": "var temperature = flow.get(\"celsius\");\nmsg.payload = temperature;\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1020,
+        "y": 300,
+        "wires": [
+            [
+                "9588c511afb49b79"
+            ]
+        ]
+    },
+    {
+        "id": "9588c511afb49b79",
+        "type": "debug",
+        "z": "2d4eaf498dfc8ef2",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1240,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "bfe43825f090775d",
+        "type": "comment",
+        "z": "2d4eaf498dfc8ef2",
+        "name": "//Debug: celsius (cache)",
+        "info": "",
+        "x": 1280,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "1a6340a6c6938cbf",
+        "type": "comment",
+        "z": "2d4eaf498dfc8ef2",
+        "name": "//todo: rbe node (function category)",
+        "info": "",
+        "x": 650,
+        "y": 340,
+        "wires": []
+    },
+    {
+        "id": "8d452b130e814ef7",
+        "type": "function",
+        "z": "2d4eaf498dfc8ef2",
+        "name": "Cycle PBS Click: 1, 2, 3, 1, ...",
+        "func": "context.set(\"onOff\", msg.payload);\nvar onOff = context.get(\"onOff\");\n\nvar state = flow.get(\"pbsState\") || 0; \nvar clickCount = state;\n\nif(onOff == 1){\n    clickCount+=1;\n\n    if(clickCount == 4){\n        clickCount = 1;\n    }\n    flow.set(\"pbsState\", clickCount);\n    //Set the msg.payload to clickCount\n    msg.payload = clickCount;\n}\n\n\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 560,
+        "y": 560,
+        "wires": [
+            [
+                "b0c4aad4f5899fe4",
+                "c3b6f8417b535056"
+            ]
+        ]
+    },
+    {
+        "id": "b0c4aad4f5899fe4",
+        "type": "switch",
+        "z": "2d4eaf498dfc8ef2",
+        "name": "",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "1",
+                "vt": "num"
+            },
+            {
+                "t": "eq",
+                "v": "2",
+                "vt": "num"
+            },
+            {
+                "t": "eq",
+                "v": "3",
+                "vt": "num"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 3,
+        "x": 830,
+        "y": 560,
+        "wires": [
+            [
+                "1c9eebbc462c4a6d"
+            ],
+            [
+                "94be7db620217614"
+            ],
+            [
+                "b20ec15f9e49f0bd"
+            ]
+        ]
+    },
+    {
+        "id": "1c9eebbc462c4a6d",
+        "type": "function",
+        "z": "2d4eaf498dfc8ef2",
+        "name": "Get cache temperature",
+        "func": "var temperature = flow.get(\"celsius\") || 0;\nmsg.payload = temperature;\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 490,
+        "y": 740,
+        "wires": [
+            [
+                "105ccc12b235370d",
+                "3fefaa4ba27b55d2"
+            ]
+        ]
+    },
+    {
+        "id": "94be7db620217614",
+        "type": "function",
+        "z": "2d4eaf498dfc8ef2",
+        "name": "Get cache temperature",
+        "func": "var temperature = flow.get(\"celsius\");\nmsg.payload = temperature;\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 490,
+        "y": 840,
+        "wires": [
+            [
+                "cbd90cd6e4418b4f",
+                "3bbe920cdf339928"
+            ]
+        ]
+    },
+    {
+        "id": "b20ec15f9e49f0bd",
+        "type": "function",
+        "z": "2d4eaf498dfc8ef2",
+        "name": "Get cache temperature",
+        "func": "var temperature = flow.get(\"celsius\");\nmsg.payload = temperature;\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 490,
+        "y": 960,
+        "wires": [
+            [
+                "4a11a4d06ba65301",
+                "184fac2a548e1352"
+            ]
+        ]
+    },
+    {
+        "id": "cbd90cd6e4418b4f",
+        "type": "function",
+        "z": "2d4eaf498dfc8ef2",
+        "name": "Conver Celsius to Fahrenheit",
+        "func": "var celsius = flow.get(\"celsius\");\nvar fahrenheit = celsius * 9/5 + 32;\n\nflow.set(\"fahrenheit\", fahrenheit);\nmsg.payload = fahrenheit;\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 790,
+        "y": 840,
+        "wires": [
+            [
+                "53dbbaa8799794f1"
+            ]
+        ]
+    },
+    {
+        "id": "4a11a4d06ba65301",
+        "type": "function",
+        "z": "2d4eaf498dfc8ef2",
+        "name": "Convert Celsius to Kelvin",
+        "func": "var fahrenheit = flow.get(\"fahrenheit\");\nvar kelvin = (fahrenheit - 32) * 5/9 + 273.15;\n\nflow.set(\"kelvin\", kelvin);\nmsg.payload = kelvin;\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 770,
+        "y": 960,
+        "wires": [
+            [
+                "9b039a6238547050"
+            ]
+        ]
+    },
+    {
+        "id": "105ccc12b235370d",
+        "type": "template",
+        "z": "2d4eaf498dfc8ef2",
+        "name": "Temperature: Celsius",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "Temperature: {{payload}}° Celsius !",
+        "output": "str",
+        "x": 1060,
+        "y": 740,
+        "wires": [
+            [
+                "758ef5dc2ebc2e41"
+            ]
+        ]
+    },
+    {
+        "id": "53dbbaa8799794f1",
+        "type": "template",
+        "z": "2d4eaf498dfc8ef2",
+        "name": "Temperature: Fahrenheit",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "Temperature: {{payload}}° Fahrenheit !",
+        "output": "str",
+        "x": 1050,
+        "y": 840,
+        "wires": [
+            [
+                "33cf094258d2f194"
+            ]
+        ]
+    },
+    {
+        "id": "9b039a6238547050",
+        "type": "template",
+        "z": "2d4eaf498dfc8ef2",
+        "name": "Temperature: Kelvin",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "Temperature: {{payload}}° Kelvin !",
+        "output": "str",
+        "x": 1040,
+        "y": 960,
+        "wires": [
+            [
+                "b21cfd2b51d70435"
+            ]
+        ]
+    },
+    {
+        "id": "758ef5dc2ebc2e41",
+        "type": "debug",
+        "z": "2d4eaf498dfc8ef2",
+        "name": "display: Temperature in Celsius",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1350,
+        "y": 740,
+        "wires": []
+    },
+    {
+        "id": "33cf094258d2f194",
+        "type": "debug",
+        "z": "2d4eaf498dfc8ef2",
+        "name": "display: Temperature in Fahrenheit",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1360,
+        "y": 840,
+        "wires": []
+    },
+    {
+        "id": "b21cfd2b51d70435",
+        "type": "debug",
+        "z": "2d4eaf498dfc8ef2",
+        "name": "display: Temperature in Kelvin",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1350,
+        "y": 960,
+        "wires": []
+    },
+    {
+        "id": "00cd68365be0258d",
+        "type": "debug",
+        "z": "2d4eaf498dfc8ef2",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 340,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "7f7c39859c40b53b",
+        "type": "debug",
+        "z": "2d4eaf498dfc8ef2",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 620,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "c3b6f8417b535056",
+        "type": "debug",
+        "z": "2d4eaf498dfc8ef2",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 700,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "b770c68b08104369",
+        "type": "debug",
+        "z": "2d4eaf498dfc8ef2",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 250,
+        "y": 640,
+        "wires": []
+    },
+    {
+        "id": "3fefaa4ba27b55d2",
+        "type": "debug",
+        "z": "2d4eaf498dfc8ef2",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 750,
+        "y": 780,
+        "wires": []
+    },
+    {
+        "id": "3bbe920cdf339928",
+        "type": "debug",
+        "z": "2d4eaf498dfc8ef2",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 750,
+        "y": 900,
+        "wires": []
+    },
+    {
+        "id": "184fac2a548e1352",
+        "type": "debug",
+        "z": "2d4eaf498dfc8ef2",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 750,
+        "y": 1020,
+        "wires": []
+    },
+    {
+        "id": "418feedc577815d8",
+        "type": "arduino-board",
+        "device": "COM5"
+    }
+]
